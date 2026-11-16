@@ -20,16 +20,16 @@ def test_initial_load_then_corrections(spark, cfg, write_csv, tmp_path):
     b2 = write_csv(os.path.join(tmp_path, "raw2"), [
         raw_row("T1", total="25.0", updated="2026-01-06 09:00:00"),   # newer -> wins
         raw_row("T2", total="99.0", updated="2026-01-04 00:00:00"),   # stale -> ignored
-        raw_row("T4", total="12.0"),                                  # new trip
+        raw_row("T4", total="20.0"),                                  # new trip
     ])
     run(spark, replace(cfg, source_path=b2), batch_id="b2")
 
     silver = {r.trip_id: r.total_amount for r in read_table(spark, cfg, C.SILVER).collect()}
-    assert silver == {"T1": 25.0, "T2": 30.0, "T4": 12.0}
+    assert silver == {"T1": 25.0, "T2": 30.0, "T4": 20.0}
 
     gold = read_table(spark, cfg, C.GOLD_DAILY).collect()
     assert sum(r.trips for r in gold) == 3
-    assert round(sum(r.revenue for r in gold), 2) == 67.0
+    assert round(sum(r.revenue for r in gold), 2) == 75.0
 
     assert read_table(spark, cfg, C.QUARANTINE).count() == 1
 
