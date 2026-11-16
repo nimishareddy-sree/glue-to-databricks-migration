@@ -1,0 +1,17 @@
+[project]
+name = "trip-pipeline"
+version = "1.0.0"
+description = "AWS Glue taxi-trip job migrated to a Databricks + Delta Lake medallion pipeline"
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src", "tests"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py310"
+extend-exclude = ["legacy"]
+
+[tool.ruff.lint]
+select = ["E9", "F"]
