@@ -1,0 +1,49 @@
+# Databricks Asset Bundle: deploys the pipeline as a serverless job.
+# Works on Databricks Free Edition (serverless compute + Unity Catalog).
+#
+#   databricks bundle validate
+#   databricks bundle deploy
+#   databricks bundle run trips_pipeline
+#   databricks bundle run trips_pipeline --params batch=batch_2
+
+bundle:
+  name: glue-to-databricks-migration
+
+variables:
+  catalog:
+    description: Unity Catalog catalog to write to
+    default: workspace
+  schema:
+    description: Schema for the bronze/silver/gold tables
+    default: trips_demo
+
+resources:
+  jobs:
+    trips_pipeline:
+      name: trips-medallion-pipeline
+      parameters:
+        - name: batch
+          default: batch_1
+      tasks:
+        - task_key: bronze_silver_gold
+          environment_key: default
+          spark_python_task:
+            python_file: ./jobs/run_pipeline.py
+            parameters:
+              - --env
+              - databricks
+              - --catalog
+              - ${var.catalog}
+              - --schema
+              - ${var.schema}
+              - --source-path
+              - /Volumes/${var.catalog}/${var.schema}/raw/{{job.parameters.batch}}
+      environments:
+        - environment_key: default
+          spec:
+            client: "2"
+
+targets:
+  dev:
+    mode: development
+    default: true
