@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+_lakehouse/
+spark-warehouse/
+metastore_db/
+derby.log
+data/raw/
+.databricks/
+.venv/
+.idea/
+.vscode/
